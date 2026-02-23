@@ -1,0 +1,41 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install LuaRocks
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y luarocks
+
+      - name: Determine rockspec version from tag
+        id: version
+        run: |
+          TAG="${GITHUB_REF_NAME}"
+          # Strip leading 'v' to get the package version (e.g. v1.3.4.dossy -> 1.3.4.dossy)
+          PKG_VERSION="${TAG#v}"
+          ROCKSPEC="rockspecs/luajson-${PKG_VERSION}-1.rockspec"
+          ROCK="luajson-${PKG_VERSION}-1.src.rock"
+          echo "pkg_version=${PKG_VERSION}" >> "$GITHUB_OUTPUT"
+          echo "rockspec=${ROCKSPEC}" >> "$GITHUB_OUTPUT"
+          echo "rock=${ROCK}" >> "$GITHUB_OUTPUT"
+
+      - name: Build source rock
+        run: luarocks pack "${{ steps.version.outputs.rockspec }}"
+
+      - name: Create GitHub release and upload rock
+        uses: softprops/action-gh-release@v2
+        with:
+          files: ${{ steps.version.outputs.rock }}
+          generate_release_notes: true

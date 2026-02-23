@@ -1,3 +1,13 @@
+## Installing this fork
+
+This fork fixes lpeg 1.1 compatibility. Install with:
+
+```bash
+luarocks install https://github.com/dossy/luajson/releases/download/v1.3.4.dossy/luajson-1.3.4.dossy-1.src.rock
+```
+
+---
+
 ## LuaJSON
 JSON Parser/Constructor for Lua
 
